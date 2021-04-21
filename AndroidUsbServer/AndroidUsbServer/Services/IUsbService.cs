@@ -14,6 +14,7 @@ namespace AndroidUsbServer.Services
         public event EventHandler<UnhandledExceptionEventArgs> ErrorReceived;
 
         Task<IEnumerable<IUsbSerialDriver>> GetDriversAsync();
+        IEnumerable<string> GetFullDeviceList();
         Task<IEnumerable<string>> GetDeviceListAsync();
         Task<IEnumerable<UsbSerialPort>> GetPortsListAsync();
         Task<bool> AskPortPermission(UsbSerialPort port);

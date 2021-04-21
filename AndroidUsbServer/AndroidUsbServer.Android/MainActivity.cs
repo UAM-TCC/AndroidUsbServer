@@ -28,13 +28,13 @@ namespace AndroidUsbServer.Droid
             base.OnCreate(savedInstanceState);
 
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
-            Xamarin.Forms.Forms.Init(this, savedInstanceState);
+            Forms.Init(this, savedInstanceState);
 
             var usbService = new UsbService(this);
-            Xamarin.Forms.DependencyService.RegisterSingleton<IUsbService>(usbService);
+            DependencyService.RegisterSingleton<IUsbService>(usbService);
 
-            var serverService = new ServerService();
-            Xamarin.Forms.DependencyService.RegisterSingleton<IServerService>(serverService);
+            var server = new WebSocketServer();
+            DependencyService.RegisterSingleton<IServer>(server);
 
             LoadApplication(new App());
         }

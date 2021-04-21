@@ -71,9 +71,10 @@
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <AndroidResource Include="Resources\xml\device_filter.xml" />
-    <Compile Include="Services\ServerService.cs" />
-    <Compile Include="Services\ServerService1.cs" />
-    <Compile Include="Services\ServerService2.cs" />
+    <Compile Include="Services\Server0.cs" />
+    <Compile Include="Services\Server.cs" />
+    <Compile Include="Services\Server1.cs" />
+    <Compile Include="Services\Server2.cs" />
     <Compile Include="Services\UsbService.cs" />
   </ItemGroup>
   <ItemGroup>

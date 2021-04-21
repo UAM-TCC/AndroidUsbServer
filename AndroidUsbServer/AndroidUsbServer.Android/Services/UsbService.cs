@@ -15,12 +15,14 @@ namespace AndroidUsbServer.Droid.Services
 {
     public class UsbService : IUsbService, IDisposable
     {
-        private readonly Activity _activity;
-        private readonly UsbManager _usbManager;
-        private SerialInputOutputManager _serialManager;
-
         public event EventHandler<SerialDataReceivedArgs> DataReceived;
         public event EventHandler<UnhandledExceptionEventArgs> ErrorReceived;
+
+        private readonly Activity _activity;
+        private readonly UsbManager _usbManager;
+
+        private UsbSerialPort _serialPort;
+        private SerialInputOutputManager _serialManager;
 
         public UsbService(Activity activity)
         {
@@ -51,11 +53,15 @@ namespace AndroidUsbServer.Droid.Services
             return drivers.ToList();
         }
 
-        public async Task<IEnumerable<string>> GetDeviceListAsync()
+        public IEnumerable<string> GetFullDeviceList()
         {
             return _usbManager.DeviceList.Values.Select(x => $"V {x.VendorId} / P {x.ProductId} / D {x.DeviceId}");
-            //var drivers = await GetDriversAsync();
-            //return drivers.Select(x => x.GetDevice()?.DeviceId).Select(x => x.GetValueOrDefault().ToString());
+        }
+
+        public async Task<IEnumerable<string>> GetDeviceListAsync()
+        {
+            var drivers = await GetDriversAsync();
+            return drivers.Select(x => x.GetDevice()?.DeviceId).Select(x => x.GetValueOrDefault().ToString());
         }
 
         public async Task<IEnumerable<UsbSerialPort>> GetPortsListAsync()
@@ -91,10 +97,12 @@ namespace AndroidUsbServer.Droid.Services
 
         public async Task OpenSerialAsync(UsbSerialPort port, int baudRate = 9600, int dataBits = 8, StopBits stopBits = StopBits.One, Parity parity = Parity.None)
         {
-            var canUsb = await AskPortPermission(port);
+            _serialPort = port;
+
+            var canUsb = await AskPortPermission(_serialPort);
             if (!canUsb) throw new Exception("Permissão USB rejeitada");
 
-            _serialManager = new SerialInputOutputManager(port)
+            _serialManager = new SerialInputOutputManager(_serialPort)
             {
                 BaudRate = baudRate,
                 DataBits = dataBits,
@@ -112,6 +120,8 @@ namespace AndroidUsbServer.Droid.Services
         public void CloseSerial()
         {
             _serialManager?.Close();
+            _serialManager = null;
+            _serialPort = null;
         }
 
         public void Dispose()

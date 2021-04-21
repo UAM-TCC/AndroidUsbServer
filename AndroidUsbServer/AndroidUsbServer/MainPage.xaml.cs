@@ -13,7 +13,7 @@ namespace AndroidUsbServer
         public MainPage()
         {
             InitializeComponent();
-            BindingContext = new UsbPortViewModel(this, DependencyService.Get<IUsbService>(), DependencyService.Get<IServerService>());
+            BindingContext = new UsbPortViewModel(this, DependencyService.Get<IUsbService>(), DependencyService.Get<IServer>());
 
             MessagingCenter.Subscribe<Application, string>(Application.Current, "Intent", (sender, args) =>
             {

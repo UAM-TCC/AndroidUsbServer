@@ -1,13 +1,14 @@
 ﻿using AndroidUsbServer.Models;
 using AndroidUsbServer.Services;
 using Hoho.Android.UsbSerial.Driver;
-using Hoho.Android.UsbSerial.Extensions;
 using Hoho.Android.UsbSerial.Util;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,28 +20,32 @@ namespace AndroidUsbServer.ViewModels
 
         private readonly MainPage _page;
         private readonly IUsbService _usbService;
-        private readonly IServerService _serverService;
+        private readonly IServer _server;
 
-        private UsbSerialPort _usbPort;
-        private AndroidServer _server;
+        private IPEndPoint _endpoint;
 
         private IEnumerable<UsbSerialPort> _usbSerialList { get; set; }
         public ObservableCollection<UsbPort> UsbList { get; set; } = new ObservableCollection<UsbPort>();
         public ObservableCollection<string> DeviceList { get; set; } = new ObservableCollection<string>();
 
-        public UsbPortViewModel(MainPage page, IUsbService usbService, IServerService serverService)
+        public UsbPortViewModel(MainPage page, IUsbService usbService, IServer server)
         {
             _page = page;
             _usbService = usbService;
-            _serverService = serverService;
+            _server = server;
         }
 
         public async Task InitAsync()
         {
-            var devices = await _usbService.GetDeviceListAsync();
+            var port = 12345;
+            var ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
+            var ipAddressList = ipHostInfo.AddressList.Where(x => x.AddressFamily == AddressFamily.InterNetwork);
+            var ipAddress = ipAddressList.ElementAt(0); // Choose IP from available interfaces list
+            _endpoint = new IPEndPoint(ipAddress, port);
+
+            var devices = _usbService.GetFullDeviceList();
             foreach (var device in devices)
                 DeviceList.Add(device);
-
 
             _usbSerialList = await _usbService.GetPortsListAsync();
 
@@ -57,7 +62,7 @@ namespace AndroidUsbServer.ViewModels
         {
             Disconnect();
 
-            _usbPort = _usbSerialList.ElementAt(portIndex);
+            var usbPort = _usbSerialList.ElementAt(portIndex);
 
             // Start USB
 
@@ -66,7 +71,7 @@ namespace AndroidUsbServer.ViewModels
                 try
                 {
                     var message = "Read " + e.Data.Length + " bytes: \n" + HexDump.DumpHexString(e.Data) + "\n\n";
-                    _server.Send(message);
+                    _server?.Send(message);
                 }
                 catch (Exception ex)
                 {
@@ -79,17 +84,17 @@ namespace AndroidUsbServer.ViewModels
                 _page.ShowError(e.ExceptionObject as Exception);
             };
 
-            await _usbService.OpenSerialAsync(_usbPort, 9600, 8, StopBits.One, Parity.None);
+            await _usbService.OpenSerialAsync(usbPort, 9600, 8, StopBits.One, Parity.None);
 
             // Start Server
 
-            _serverService.DataReceived += (sender, e) =>
+            _server.DataReceived += (sender, e) =>
             {
                 try
                 {
                     //if (!_serialManager.IsOpen)
                     //    throw new Exception("Serial is closed");
-                    _usbPort?.Write(Encoding.ASCII.GetBytes(e.Data), 0);
+                    usbPort?.Write(Encoding.UTF8.GetBytes(e.Data), 0);
                 }
                 catch (Exception ex)
                 {
@@ -97,22 +102,26 @@ namespace AndroidUsbServer.ViewModels
                 }
             };
 
-            _serverService.ErrorReceived += (sender, e) =>
+            _server.ErrorReceived += (sender, e) =>
             {
                 _page.ShowError(e.Exception);
             };
 
-            _server = await _serverService.StartAsync();
+            _server.Listen(_endpoint);
 
-            _server.Send("START");
+            _server.Send("Connected");
 
-            return _server;
+            return new AndroidServer
+            {
+                Endpoint = _endpoint,
+                Send = _server.Send
+            };
         }
 
         public void Disconnect()
         {
             _usbService?.CloseSerial();
-            _serverService?.StopAsync().Wait();
+            _server?.Close();
         }
 
         public void Dispose()
