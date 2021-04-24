@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="AndroidUsbServer.Views.SetupPage"
+             BackgroundColor="#222222">
+
+    <ContentPage.Content>
+
+        <StackLayout VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" Margin="15">
+            <StackLayout VerticalOptions="Start">
+                <Picker Title="Select a Driver" FontSize="20"
+                    ItemsSource="{Binding Drivers}"
+                    ItemDisplayBinding="{Binding}"
+                    SelectedItem="{Binding SelectedDriver}" />
+
+                <Entry Text="{Binding Endpoint}" Placeholder="Server Address" />
+            </StackLayout>
+            
+            <StackLayout VerticalOptions="End">
+                <Grid HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Button Text="Cancel" Clicked="OnCancelClicked" HorizontalOptions="Center"
+                            VerticalOptions="CenterAndExpand" Grid.Row="0" Grid.Column="0"/>
+                    <Button Text="Start" Clicked="OnStartClicked" HorizontalOptions="Center"
+                            VerticalOptions="CenterAndExpand" Grid.Row="0" Grid.Column="1" />
+                </Grid>
+            </StackLayout>
+        </StackLayout>
+
+    </ContentPage.Content>
+
+</ContentPage>

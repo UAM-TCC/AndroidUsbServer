@@ -507,17 +507,6 @@ namespace Hoho.Android.UsbSerial.Driver
                     {
                         UsbId.LEAFLABS_MAPLE
                     }
-                },
-
-
-
-                // CUSTOM
-
-                {
-                    UsbId.VENDOR_MCS, new[]
-                    {
-                        UsbId.AT_TINY_85
-                    }
                 }
             };
         }

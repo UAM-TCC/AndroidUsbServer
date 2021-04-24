@@ -1,6 +1,6 @@
 const WebSocket = require('ws');
 
-const client = new WebSocket('ws://192.168.0.5:12345');
+const client = new WebSocket('ws://192.168.0.5:8000');
 
 let state = false;
 const changeState = () => { state = !state; return state ? '1' : '0' }

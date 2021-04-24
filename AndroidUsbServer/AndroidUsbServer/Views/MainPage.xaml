@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="AndroidUsbServer.Views.MainPage"
+             BackgroundColor="#222222">
+
+    <ContentPage.Content>
+
+        <StackLayout VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+            <Frame Padding="10" Margin="15,30,15,15" HasShadow="false" CornerRadius="10" IsVisible="{Binding IsRunning}">
+                <Grid HorizontalOptions="FillAndExpand" VerticalOptions="Fill">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Text="{Binding ServerSetup.Endpoint}" FontSize="12" VerticalOptions="Center" Margin="20,0"/>
+                    <StackLayout Grid.Column="2" Orientation="Horizontal" Margin="20,0" HorizontalOptions="End" VerticalOptions="Center">
+                        <Label Text="Stop" FontSize="25" VerticalOptions="Center">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding DisconnectCommand}" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </StackLayout>
+                </Grid>
+            </Frame>
+            
+            <ListView x:Name="UsbList" ItemsSource="{Binding UsbList}" SeparatorVisibility="None"
+                  VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand"
+                  Margin="15" RowHeight="100" SelectionMode="None" ItemTapped="UsbList_ItemTapped">
+                <ListView.ItemTemplate>
+                    <DataTemplate >
+                        <ViewCell>
+                            <Frame Padding="5" Margin="5" HasShadow="false" CornerRadius="10">
+                                <Grid HorizontalOptions="FillAndExpand" VerticalOptions="Fill">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Text="{Binding Type}" FontSize="12" VerticalOptions="Center" Margin="20,0"/>
+                                    <StackLayout Grid.Column="2" Orientation="Horizontal" Margin="20,0" HorizontalOptions="End" VerticalOptions="Center">
+                                        <Label Text="{Binding PortNumber}" FontSize="30" FontAttributes="Bold" VerticalOptions="Center"/>
+                                    </StackLayout>
+                                </Grid>
+                            </Frame>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </StackLayout>
+        
+    </ContentPage.Content>
+
+</ContentPage>

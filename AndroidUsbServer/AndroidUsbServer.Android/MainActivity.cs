@@ -11,13 +11,12 @@ using Xamarin.Forms;
 namespace AndroidUsbServer.Droid
 {
     [Activity(Label = "AndroidUsbServer", Icon = "@mipmap/icon", Theme = "@style/MainTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize, LaunchMode = LaunchMode.SingleTop)]
-    //[IntentFilter(new[] { UsbManager.ActionUsbDeviceAttached })]
-    //[IntentFilter(new[] { UsbManager.ActionUsbDeviceDetached })]
-    [IntentFilter(new[] { UsbManager.ActionUsbDeviceAttached })]
-    [MetaData(UsbManager.ActionUsbDeviceAttached, Resource = "@xml/device_filter")]
+    [IntentFilter(new[] { UsbManager.ActionUsbDeviceAttached })] // Enables "Open with"
+    [MetaData(UsbManager.ActionUsbDeviceAttached, Resource = "@xml/device_filter")] // Enables "Open with" (Listen to specific devices)
     public class MainActivity : Xamarin.Forms.Platform.Android.FormsAppCompatActivity
     {
         // Xamarin Forms (XAML - PCL)
+        // Xamarin Forms Custom Libs: https://github.com/jsuarezruiz/awesome-xamarin-forms
         // DependencyService (registration via attribute vs method)
         // MessagingCenter (Application.Current)
         // BindingContext (MVVM) (http://www.macoratti.net/17/09/xf_dblv1.htm)
@@ -37,6 +36,13 @@ namespace AndroidUsbServer.Droid
             DependencyService.RegisterSingleton<IServer>(server);
 
             LoadApplication(new App());
+
+            // WakeLock
+
+            PowerManager pmanager = (PowerManager)GetSystemService(PowerService);
+            PowerManager.WakeLock wakelock = pmanager.NewWakeLock(WakeLockFlags.Partial, "AndroidUsbServer");
+            wakelock.SetReferenceCounted(false);
+            wakelock.Acquire();
         }
 
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)
@@ -50,7 +56,11 @@ namespace AndroidUsbServer.Droid
         {
             base.OnResume();
 
-            //register the broadcast receivers
+            // Register the broadcast receivers
+
+            BroadcastReceiver attachedReceiver = new UsbDeviceAttachedReceiver(this);
+            RegisterReceiver(attachedReceiver, new IntentFilter(UsbManager.ActionUsbDeviceAttached));
+
             BroadcastReceiver detachedReceiver = new UsbDeviceDetachedReceiver(this);
             RegisterReceiver(detachedReceiver, new IntentFilter(UsbManager.ActionUsbDeviceDetached));
         }
@@ -58,8 +68,23 @@ namespace AndroidUsbServer.Droid
         //protected override void OnNewIntent(Intent intent)
         //{
         //    base.OnNewIntent(intent);
-        //    MessagingCenter.Send(Xamarin.Forms.Application.Current, "Intent", intent.Action);
+        //    MessagingCenter.Send(Xamarin.Forms.Application.Current, "Intent", "OnNewIntent: " + intent.Action);
         //}
+
+        class UsbDeviceAttachedReceiver : BroadcastReceiver
+        {
+            private readonly MainActivity _activity;
+
+            public UsbDeviceAttachedReceiver(MainActivity activity)
+            {
+                _activity = activity;
+            }
+
+            public override void OnReceive(Context context, Intent intent)
+            {
+                MessagingCenter.Send(Xamarin.Forms.Application.Current, "Intent", intent.Action);
+            }
+        }
 
         class UsbDeviceDetachedReceiver : BroadcastReceiver
         {

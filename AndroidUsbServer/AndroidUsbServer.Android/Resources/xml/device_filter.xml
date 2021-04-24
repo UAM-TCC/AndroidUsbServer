@@ -31,4 +31,7 @@
 
     <!-- 0x09D8 / 0x0420: Elatec TWN4 OTG -->
     <usb-device vendor-id="2520" product-id="1056" />
+  
+    <!-- 0x16D0 / 0x087E: MSC ATtiny85 -->
+    <usb-device vendor-id="5840" product-id="2174" />
 </resources>

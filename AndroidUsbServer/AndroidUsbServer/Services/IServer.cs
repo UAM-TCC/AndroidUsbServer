@@ -12,15 +12,10 @@ namespace AndroidUsbServer.Services
         event EventHandler<ClosedEventArgs> Closed;
 
         Action<string> Send { get; }
+        bool IsOpen { get; }
 
         void Listen(IPEndPoint endpoint);
         void Close();
-    }
-
-    public class AndroidServer
-    {
-        public IPEndPoint Endpoint { get; set; }
-        public Action<string> Send { get; set; }
     }
 
     public class OpenedEventArgs : EventArgs

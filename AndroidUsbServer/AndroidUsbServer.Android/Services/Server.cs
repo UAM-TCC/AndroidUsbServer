@@ -43,7 +43,7 @@ namespace AndroidUsbServer.Droid.Services
         //public Action<TcpClient, string> Send => (TcpClient client, string message) => WriteMessage(client, message);
         //public Action<string> SendAll => (string message) => _clients.ForEach(c => WriteMessage(c.Client, message));
 
-        public bool IsOpen { get; set; } = false;
+        public bool IsOpen { get; protected set; } = false;
 
         public void Listen(IPEndPoint endpoint)
         {
@@ -70,6 +70,8 @@ namespace AndroidUsbServer.Droid.Services
             catch (Exception ex) { ErrorReceived?.Invoke(this, new ErrorReceivedEventArgs(ex, null)); }
 
             _clients.Clear();
+
+            _server.Stop();
 
             try { _serverCancellationToken.Cancel(); }
             catch (Exception ex) { ErrorReceived?.Invoke(this, new ErrorReceivedEventArgs(ex, null)); }

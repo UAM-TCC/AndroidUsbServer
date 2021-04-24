@@ -1,7 +1,7 @@
 var net = require('net');
 
 var client = new net.Socket();
-client.connect(12345, '192.168.0.5', function() {
+client.connect(8000, '192.168.0.5', function() {
 	console.log('Connected');
 	client.write(process.argv[2]); // ON / OFF
 });

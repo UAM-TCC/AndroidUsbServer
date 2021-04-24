@@ -1,6 +1,5 @@
-﻿using System;
+﻿using AndroidUsbServer.Views;
 using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
 
 namespace AndroidUsbServer
 {

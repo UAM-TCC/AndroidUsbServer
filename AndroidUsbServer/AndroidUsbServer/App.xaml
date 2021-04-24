@@ -3,6 +3,34 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="AndroidUsbServer.App">
     <Application.Resources>
+        <!--<Style TargetType="ContentPage">
+            <Setter Property="BackgroundColor" Value="#222222" />
+        </Style>-->
 
+        <Style TargetType="Frame">
+            <Setter Property="BackgroundColor" Value="#333333" />
+            <Setter Property="BorderColor" Value="#555555" />
+        </Style>
+        
+        <Style TargetType="Label">
+            <Setter Property="TextColor" Value="#999999" />
+        </Style>
+
+        <Style TargetType="Button">
+            <Setter Property="TextColor" Value="#999999" />
+            <Setter Property="BackgroundColor" Value="#333333" />
+        </Style>
+
+        <Style TargetType="Entry">
+            <Setter Property="TextColor" Value="#999999" />
+        </Style>
+
+        <Style TargetType="Editor">
+            <Setter Property="TextColor" Value="#999999" />
+        </Style>
+
+        <Style TargetType="Picker">
+            <Setter Property="TextColor" Value="#999999" />
+        </Style>
     </Application.Resources>
 </Application>

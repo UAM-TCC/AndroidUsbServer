@@ -80,12 +80,5 @@ namespace Hoho.Android.UsbSerial.Driver
 		public static readonly int VENDOR_STM = 0x0483;
 		public static readonly int STM32_STLINK = 0x374B;
 		public static readonly int STM32_VCOM = 0x5740;
-
-
-
-        // CUSTOM
-
-        public static readonly int VENDOR_MCS = 0x16d0;
-        public static readonly int AT_TINY_85 = 0x087E;
     }
 }

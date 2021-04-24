@@ -30,6 +30,16 @@ namespace AndroidUsbServer.Droid.Services
             _usbManager = _activity.GetSystemService(Context.UsbService) as UsbManager;
         }
 
+        public IReadOnlyList<UsbDriver> Drivers => new List<UsbDriver>
+        {
+            new UsbDriver("CDC", typeof(CdcAcmSerialDriver)),
+            new UsbDriver("CH34x", typeof(Ch34xSerialDriver)),
+            new UsbDriver("CP21xx", typeof(Cp21xxSerialDriver)),
+            new UsbDriver("FTDI", typeof(FtdiSerialDriver)),
+            new UsbDriver("Prolific", typeof(ProlificSerialDriver)),
+            new UsbDriver("STM32", typeof(STM32SerialDriver)),
+        };
+
         public async Task<IEnumerable<IUsbSerialDriver>> GetDriversAsync()
         {
             // using the default probe table
@@ -41,11 +51,13 @@ namespace AndroidUsbServer.Droid.Services
 
             //table.AddProduct(0x09D8, 0x0420, typeof(CdcAcmSerialDriver)); // Elatec TWN4
 
-
-            // add CDC (ATtiny85)
             var table = new ProbeTable();
             table.AddDriver(typeof(CdcAcmSerialDriver));
 
+            table.AddProduct(0x16D0, 0x087E, typeof(CdcAcmSerialDriver)); // MSC ATtiny85
+
+            table.AddProduct(0x1b4f, 0x0008, typeof(CdcAcmSerialDriver)); // IOIO OTG
+            table.AddProduct(0x09D8, 0x0420, typeof(CdcAcmSerialDriver)); // Elatec TWN4
 
             var prober = new UsbSerialProber(table);
             var drivers = await prober.FindAllDriversAsync(_usbManager);
@@ -78,20 +90,20 @@ namespace AndroidUsbServer.Droid.Services
             return permissionGranted;
         }
 
-        public IEnumerable<UsbPort> Map(IEnumerable<UsbSerialPort> usbPorts)
+        public IEnumerable<UsbPort> Map(IEnumerable<UsbSerialPort> usbPorts, bool full = true)
         {
             return usbPorts.Select(x => new UsbPort
             {
                 Type = x.GetType().Name,
-                DeviceName = x.Driver.Device.DeviceName,
-                DeviceId = x.Driver.Device.DeviceId,
-                PortNumber = x.PortNumber,
-                //ProductId = x.Driver.Device.ProductId,
-                //VendorId = x.Driver.Device.VendorId,
-                //SerialNumber = x.Driver.Device.SerialNumber,
-                //ProductName = x.Driver.Device.ProductName,
-                //ManufacturerName = x.Driver.Device.ManufacturerName,
-                //DeviceProtocol = x.Driver.Device.DeviceProtocol
+                VendorId = x.Driver.Device.VendorId, // 5840 (0x16D0) = MSC
+                ProductId = x.Driver.Device.ProductId, // 2174 (0x087E) = ATtiny85
+                DeviceId = x.Driver.Device.DeviceId, // 1002, 1003 ... incremental ?
+                PortNumber = x.PortNumber, // 0, 1 ... incremental ?
+                SerialNumber = full ? x.Driver.Device.SerialNumber : default,
+                DeviceName = full ? x.Driver.Device.DeviceName : default,
+                ProductName = full ? x.Driver.Device.ProductName : default,
+                ManufacturerName = full ? x.Driver.Device.ManufacturerName : default,
+                DeviceProtocol = full ? x.Driver.Device.DeviceProtocol : default
             });
         }
 
@@ -127,6 +139,28 @@ namespace AndroidUsbServer.Droid.Services
         public void Dispose()
         {
             CloseSerial();
+        }
+
+        public IEnumerable<string> MockDevices()
+        {
+            return new int[3].Select(x => $"V 5840 / P 2174 / D 1002");
+        }
+
+        public IEnumerable<UsbPort> MockPorts()
+        {
+            return new int[3].Select(x => new UsbPort
+            {
+                Type = "CdcAcmSerialDriver",
+                VendorId = 5840, // 5840 (0x16D0) = MSC
+                ProductId = 2174, // 2174 (0x087E) = ATtiny85
+                DeviceId = 1002, // 1002, 1003 ... incremental ?
+                PortNumber = 0, // 0, 1 ... incremental ?
+                SerialNumber = "SerialNumber",
+                DeviceName = "DeviceName",
+                ProductName = "ProductName",
+                ManufacturerName = "ManufacturerName",
+                DeviceProtocol = 0
+            });
         }
     }
 }
