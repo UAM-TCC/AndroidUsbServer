@@ -24,12 +24,7 @@ namespace AndroidUsbServer.Droid.Services
         private UsbSerialPort _serialPort;
         private SerialInputOutputManager _serialManager;
 
-        public UsbService(Activity activity)
-        {
-            _activity = activity;
-            _usbManager = _activity.GetSystemService(Context.UsbService) as UsbManager;
-        }
-
+        public bool IsOpen => IsOpen; 
         public IReadOnlyList<UsbDriver> Drivers => new List<UsbDriver>
         {
             new UsbDriver("CDC", typeof(CdcAcmSerialDriver)),
@@ -39,6 +34,12 @@ namespace AndroidUsbServer.Droid.Services
             new UsbDriver("Prolific", typeof(ProlificSerialDriver)),
             new UsbDriver("STM32", typeof(STM32SerialDriver)),
         };
+
+        public UsbService(Activity activity)
+        {
+            _activity = activity;
+            _usbManager = _activity.GetSystemService(Context.UsbService) as UsbManager;
+        }
 
         public async Task<IEnumerable<IUsbSerialDriver>> GetDriversAsync()
         {
@@ -95,15 +96,15 @@ namespace AndroidUsbServer.Droid.Services
             return usbPorts.Select(x => new UsbPort
             {
                 Type = x.GetType().Name,
-                VendorId = x.Driver.Device.VendorId, // 5840 (0x16D0) = MSC
-                ProductId = x.Driver.Device.ProductId, // 2174 (0x087E) = ATtiny85
-                DeviceId = x.Driver.Device.DeviceId, // 1002, 1003 ... incremental ?
                 PortNumber = x.PortNumber, // 0, 1 ... incremental ?
-                SerialNumber = full ? x.Driver.Device.SerialNumber : default,
-                DeviceName = full ? x.Driver.Device.DeviceName : default,
-                ProductName = full ? x.Driver.Device.ProductName : default,
-                ManufacturerName = full ? x.Driver.Device.ManufacturerName : default,
-                DeviceProtocol = full ? x.Driver.Device.DeviceProtocol : default
+                VendorId = x.Driver?.Device?.VendorId ?? 0, // 5840 (0x16D0) = MSC
+                ProductId = x.Driver?.Device?.ProductId ?? 0, // 2174 (0x087E) = ATtiny85
+                DeviceId = x.Driver?.Device?.DeviceId ?? 0, // 1002, 1003 ... incremental ?
+                SerialNumber = full ? x.Driver?.Device?.SerialNumber : default,
+                DeviceName = full ? x.Driver?.Device?.DeviceName : default,
+                ProductName = full ? x.Driver?.Device?.ProductName : default,
+                ManufacturerName = full ? x.Driver?.Device?.ManufacturerName : default,
+                DeviceProtocol = full ? x.Driver?.Device?.DeviceProtocol ?? 0 : default
             });
         }
 
@@ -131,7 +132,7 @@ namespace AndroidUsbServer.Droid.Services
 
         public void CloseSerial()
         {
-            _serialManager?.Close();
+            if (IsOpen) _serialManager?.Close();
             _serialManager = null;
             _serialPort = null;
         }

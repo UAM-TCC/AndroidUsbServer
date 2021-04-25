@@ -29,7 +29,7 @@
                   Margin="15" RowHeight="100" SelectionMode="None" ItemTapped="UsbList_ItemTapped">
                 <ListView.ItemTemplate>
                     <DataTemplate >
-                        <ViewCell>
+                        <ViewCell IsEnabled="{Binding IsIdle}">
                             <Frame Padding="5" Margin="5" HasShadow="false" CornerRadius="10">
                                 <Grid HorizontalOptions="FillAndExpand" VerticalOptions="Fill">
                                     <Grid.ColumnDefinitions>

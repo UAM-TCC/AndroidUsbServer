@@ -41,6 +41,7 @@ namespace AndroidUsbServer.ViewModels
             }
         }
 
+        public bool IsIdle => !IsRunning;
         private bool _isRunning;
         public bool IsRunning
         {
@@ -98,6 +99,7 @@ namespace AndroidUsbServer.ViewModels
             {
                 try
                 {
+                    if (e?.Data == null) return;
                     var message = Encoding.UTF8.GetString(e.Data);
                     _server?.Send(message);
                 }
@@ -120,9 +122,8 @@ namespace AndroidUsbServer.ViewModels
             {
                 try
                 {
-                    //if (!_serialManager.IsOpen)
-                    //    throw new Exception("Serial is closed");
-                    serverSetup.Port?.Write(Encoding.UTF8.GetBytes(e.Data), 0);
+                    if (e?.Data == null || !_usbService.IsOpen) return;
+                    serverSetup?.Port?.Write(Encoding.UTF8.GetBytes(e.Data), 0);
                 }
                 catch (Exception ex)
                 {
@@ -152,8 +153,7 @@ namespace AndroidUsbServer.ViewModels
         {
             IsRunning = false;
             _usbService?.CloseSerial();
-            if (_server != null && _server.IsOpen)
-                _server.Close();
+            _server?.Close();
         }
 
         public void Dispose()

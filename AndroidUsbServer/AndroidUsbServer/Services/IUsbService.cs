@@ -9,11 +9,11 @@ namespace AndroidUsbServer.Services
 {
     public interface IUsbService
     {
-
-        public event EventHandler<SerialDataReceivedArgs> DataReceived;
-        public event EventHandler<UnhandledExceptionEventArgs> ErrorReceived;
+        event EventHandler<SerialDataReceivedArgs> DataReceived;
+        event EventHandler<UnhandledExceptionEventArgs> ErrorReceived;
 
         IReadOnlyList<UsbDriver> Drivers { get; }
+        bool IsOpen { get; }
 
         Task<IEnumerable<IUsbSerialDriver>> GetDriversAsync();
         IEnumerable<string> GetFullDeviceList();

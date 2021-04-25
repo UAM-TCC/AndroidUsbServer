@@ -66,6 +66,8 @@ namespace AndroidUsbServer.Droid.Services
 
         public void Close()
         {
+            if (!IsOpen) return;
+
             try { _clients.ForEach(c => CloseClient(c.Client)); }
             catch (Exception ex) { ErrorReceived?.Invoke(this, new ErrorReceivedEventArgs(ex, null)); }
 

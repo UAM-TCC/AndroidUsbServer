@@ -5,10 +5,10 @@ const client = new WebSocket('ws://192.168.0.5:8000');
 let state = false;
 const changeState = () => { state = !state; return state ? '1' : '0' }
 
-// client.on('open', () => client.send(changeState()));
+// client.on('open', () => client.send(process.argv[2])); // node ws-client.js 0 or 1
 client.on('open', () => setInterval(() => client.send(changeState()), 1000));
 
-client.on('message', data => console.log(data));
+client.on('message', data => console.log('>',data));
 
 client.on('close', (code, reason) => { console.log(code, reason); exitHandler({exit:true}); })
 

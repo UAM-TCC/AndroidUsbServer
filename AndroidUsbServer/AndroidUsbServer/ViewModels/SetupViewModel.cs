@@ -61,10 +61,7 @@ namespace AndroidUsbServer.ViewModels
             Drivers = new ObservableCollection<string>(_usbService.Drivers.Select(d => d.Alias));
 
             _usbPort = usbPort;
-            _selectedDriver = _usbService.Drivers.FirstOrDefault(d => d.Driver == _usbPort.Driver.GetType());
-
-            if (_selectedDriver == null)
-                throw new Exception("Invalid driver");
+            _selectedDriver = _usbService.Drivers.FirstOrDefault(d => d.Driver == _usbPort?.Driver?.GetType()) ?? _usbService.Drivers.First();
 
             var port = 8000;
             var ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
