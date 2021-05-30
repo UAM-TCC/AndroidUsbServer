@@ -24,7 +24,7 @@ namespace AndroidUsbServer.Droid.Services
         private UsbSerialPort _serialPort;
         private SerialInputOutputManager _serialManager;
 
-        public bool IsOpen => IsOpen; 
+        public bool IsOpen => _serialManager?.IsOpen ?? false;
         public IReadOnlyList<UsbDriver> Drivers => new List<UsbDriver>
         {
             new UsbDriver("CDC", typeof(CdcAcmSerialDriver)),
@@ -126,8 +126,7 @@ namespace AndroidUsbServer.Droid.Services
             _serialManager.DataReceived += DataReceived;
             _serialManager.ErrorReceived += ErrorReceived;
 
-            if (!_serialManager.IsOpen)
-                _serialManager.Open(_usbManager);
+            if (!IsOpen) _serialManager.Open(_usbManager);
         }
 
         public void CloseSerial()
