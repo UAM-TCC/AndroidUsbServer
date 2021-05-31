@@ -10,7 +10,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "node-webcam": "^0.8.0",
     "ws": "^7.4.5"
   }
 }
